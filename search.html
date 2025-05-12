@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .search-form {
+            margin-bottom: 30px;
+        }
+        .search-form input, .search-form select, .search-form button {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .search-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .job-card {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .job-header {
+            margin-bottom: 15px;
+        }
+        
+        .job-details {
+            margin: 15px 0;
+        }
+        
+        .detail-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .detail-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .job-description {
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .job-card h3 {
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .job-card .company {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .job-card .location,
+        .job-card .salary {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .job-card .description {
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        .job-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        .apply-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .apply-button:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Job Search</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="services.html">Our Services</a>
+        <a href="apply.html">Apply</a>
+        <a href="search.html">Search Jobs</a>
+        <a href="search_reviews.html">Search Reviews</a>
+        <a href="career_resources.html">Career Resources</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+    
+    <div class="container">
+        <div class="search-form">
+            <h2>Find Your Dream Job</h2>
+            <form id="jobSearchForm">
+                <input type="text" id="keywords" placeholder="Job title, keywords">
+                <input type="text" id="location" placeholder="Location">
+                <select id="jobType">
+                    <option value="">All Job Types</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                </select>
+                <button type="submit">Search Jobs</button>
+            </form>
+        </div>
+        
+        <div id="searchResults">
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2025 Job Application Portal. All rights reserved.</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('jobSearchForm');
+            const resultsContainer = document.getElementById('searchResults');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const keywords = document.getElementById('keywords').value;
+                const location = document.getElementById('location').value;
+                const jobType = document.getElementById('jobType').value;
+                
+                // Show loading state
+                resultsContainer.innerHTML = '<p>Searching for jobs...</p>';
+                
+                // Mock data 
+                const mockJobs = [
+                    {
+                        title: 'Senior Software Engineer',
+                        company: 'Tech Solutions Inc.',
+                        location: 'New York, NY',
+                        salary: '$120,000 - $150,000',
+                        description: 'Looking for an experienced software engineer to join our team...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-15',
+                        url: 'apply.html?position=Senior+Software+Engineer'
+                    },
+                    {
+                        title: 'Marketing Manager',
+                        company: 'Global Marketing Agency',
+                        location: 'Los Angeles, CA',
+                        salary: '$80,000 - $100,000',
+                        description: 'Seeking a creative marketing manager to lead our campaigns...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-14',
+                        url: 'apply.html?position=Marketing+Manager'
+                    },
+                    {
+                        title: 'Data Analyst',
+                        company: 'Data Insights Corp',
+                        location: 'Chicago, IL',
+                        salary: '$70,000 - $90,000',
+                        description: 'Join our data analytics team to help drive business decisions...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-13',
+                        url: 'apply.html?position=Data+Analyst'
+                    },
+                    {
+                        title: 'Web Developer',
+                        company: 'Digital Creations LLC',
+                        location: 'Austin, TX',
+                        salary: '$85,000 - $110,000',
+                        description: 'Front-end developer needed to build responsive websites using HTML, CSS and JavaScript...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-12',
+                        url: 'apply.html?position=Web+Developer'
+                    },
+                    {
+                        title: 'HR Coordinator',
+                        company: 'People First Inc.',
+                        location: 'Boston, MA',
+                        salary: '$55,000 - $65,000',
+                        description: 'Human resources coordinator to assist with recruitment and employee relations...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-11',
+                        url: 'apply.html?position=HR+Coordinator'
+                    },
+                    {
+                        title: 'Graphic Designer',
+                        company: 'Creative Minds Agency',
+                        location: 'Portland, OR',
+                        salary: '$60,000 - $75,000',
+                        description: 'Mid-level graphic designer with experience in Adobe Creative Suite...',
+                        type: 'Contract',
+                        posted_date: '2025-01-10',
+                        url: 'apply.html?position=Graphic+Designer'
+                    },
+                    {
+                        title: 'Financial Analyst',
+                        company: 'Capital Investments',
+                        location: 'New York, NY',
+                        salary: '$90,000 - $120,000',
+                        description: 'Analyze financial data and prepare reports for investment decisions...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-09',
+                        url: 'apply.html?position=Financial+Analyst'
+                    },
+                    {
+                        title: 'Customer Support Specialist',
+                        company: 'Tech Support Solutions',
+                        location: 'Remote',
+                        salary: '$45,000 - $55,000',
+                        description: 'Provide technical support to customers via phone and email...',
+                        type: 'Part-time',
+                        posted_date: '2025-01-08',
+                        url: 'apply.html?position=Customer+Support+Specialist'
+                    },
+                    {
+                        title: 'Sales Representative',
+                        company: 'National Sales Corp',
+                        location: 'Chicago, IL',
+                        salary: '$60,000 base + commission',
+                        description: 'Outside sales representative for business-to-business products...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-07',
+                        url: 'apply.html?position=Sales+Representative'
+                    },
+                    {
+                        title: 'DevOps Engineer',
+                        company: 'Cloud Systems Inc.',
+                        location: 'San Francisco, CA',
+                        salary: '$130,000 - $160,000',
+                        description: 'Implement CI/CD pipelines and manage cloud infrastructure...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-06',
+                        url: 'apply.html?position=DevOps+Engineer'
+                    },
+                    {
+                        title: 'Content Writer',
+                        company: 'Media Publications',
+                        location: 'Remote',
+                        salary: '$50,000 - $70,000',
+                        description: 'Create engaging content for websites and marketing materials...',
+                        type: 'Contract',
+                        posted_date: '2025-01-05',
+                        url: 'apply.html?position=Content+Writer'
+                    },
+                    {
+                        title: 'Product Manager',
+                        company: 'Innovative Products LLC',
+                        location: 'Seattle, WA',
+                        salary: '$110,000 - $140,000',
+                        description: 'Lead product development from concept to launch...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-04',
+                        url: 'apply.html?position=Product+Manager'
+                    },
+                    {
+                        title: 'Network Administrator',
+                        company: 'IT Infrastructure Solutions',
+                        location: 'Dallas, TX',
+                        salary: '$75,000 - $95,000',
+                        description: 'Maintain and troubleshoot company network infrastructure...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-03',
+                        url: 'apply.html?position=Network+Administrator'
+                    },
+                    {
+                        title: 'UX Designer',
+                        company: 'User Experience Labs',
+                        location: 'Boston, MA',
+                        salary: '$95,000 - $115,000',
+                        description: 'Design intuitive user interfaces and conduct usability testing...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-02',
+                        url: 'apply.html?position=UX+Designer'
+                    },
+                    {
+                        title: 'Accountant',
+                        company: 'Financial Services Group',
+                        location: 'Philadelphia, PA',
+                        salary: '$70,000 - $85,000',
+                        description: 'Prepare financial statements and manage general ledger...',
+                        type: 'Full-time',
+                        posted_date: '2025-01-01',
+                        url: 'apply.html?position=Accountant'
+                    },
+                    {
+                        title: 'Operations Manager',
+                        company: 'Manufacturing Solutions',
+                        location: 'Detroit, MI',
+                        salary: '$85,000 - $105,000',
+                        description: 'Oversee daily operations and improve efficiency...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-31',
+                        url: 'apply.html?position=Operations+Manager'
+                    },
+                    {
+                        title: 'Cybersecurity Specialist',
+                        company: 'Secure Networks Inc.',
+                        location: 'Washington, DC',
+                        salary: '$120,000 - $150,000',
+                        description: 'Protect systems from cyber threats and implement security measures...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-30',
+                        url: 'apply.html?position=Cybersecurity+Specialist'
+                    },
+                    {
+                        title: 'Recruiter',
+                        company: 'Talent Acquisition Partners',
+                        location: 'Atlanta, GA',
+                        salary: '$65,000 - $80,000',
+                        description: 'Source and screen candidates for technical positions...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-29',
+                        url: 'apply.html?position=Recruiter'
+                    },
+                    {
+                        title: 'Business Analyst',
+                        company: 'Strategic Consulting',
+                        location: 'New York, NY',
+                        salary: '$85,000 - $100,000',
+                        description: 'Analyze business processes and recommend improvements...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-28',
+                        url: 'apply.html?position=Business+Analyst'
+                    },
+                    {
+                        title: 'Mobile App Developer',
+                        company: 'App Innovations',
+                        location: 'Austin, TX',
+                        salary: '$100,000 - $130,000',
+                        description: 'Develop cross-platform mobile applications using React Native...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-27',
+                        url: 'apply.html?position=Mobile+App+Developer'
+                    },
+                    {
+                        title: 'Social Media Manager',
+                        company: 'Digital Marketing Agency',
+                        location: 'Los Angeles, CA',
+                        salary: '$60,000 - $75,000',
+                        description: 'Manage social media accounts and create engaging content...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-26',
+                        url: 'apply.html?position=Social+Media+Manager'
+                    },
+                    {
+                        title: 'Quality Assurance Engineer',
+                        company: 'Software Testing Labs',
+                        location: 'Seattle, WA',
+                        salary: '$90,000 - $110,000',
+                        description: 'Develop and execute test plans for software applications...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-25',
+                        url: 'apply.html?position=Quality+Assurance+Engineer'
+                    },
+                    {
+                        title: 'Executive Assistant',
+                        company: 'Corporate Offices Inc.',
+                        location: 'Chicago, IL',
+                        salary: '$65,000 - $80,000',
+                        description: 'Provide administrative support to C-level executives...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-24',
+                        url: 'apply.html?position=Executive+Assistant'
+                    },
+                    {
+                        title: 'Data Scientist',
+                        company: 'Advanced Analytics',
+                        location: 'San Francisco, CA',
+                        salary: '$140,000 - $170,000',
+                        description: 'Build machine learning models and analyze large datasets...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-23',
+                        url: 'apply.html?position=Data+Scientist'
+                    },
+                    {
+                        title: 'Legal Assistant',
+                        company: 'Law Partners LLP',
+                        location: 'Boston, MA',
+                        salary: '$50,000 - $65,000',
+                        description: 'Assist attorneys with legal research and document preparation...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-22',
+                        url: 'apply.html?position=Legal+Assistant'
+                    },
+                    {
+                        title: 'Architect',
+                        company: 'Design & Build',
+                        location: 'Denver, CO',
+                        salary: '$95,000 - $125,000',
+                        description: 'Design residential and commercial buildings...',
+                        type: 'Full-time',
+                        posted_date: '2024-12-21',
+                        url: 'apply.html?position=Architect'
+                    }
+                ];
+                
+                // Filter
+                const filteredJobs = mockJobs.filter(job => {
+                    const matchesKeywords = !keywords || job.title.toLowerCase().includes(keywords.toLowerCase()) || 
+                                          job.description.toLowerCase().includes(keywords.toLowerCase());
+                    const matchesLocation = !location || job.location.toLowerCase().includes(location.toLowerCase());
+                    const matchesType = !jobType || job.type.toLowerCase() === jobType.toLowerCase();
+                    return matchesKeywords && matchesLocation && matchesType;
+                });
+                
+                displayResults(filteredJobs);
+            });
+            
+            function displayResults(jobs) {
+                resultsContainer.innerHTML = '';
+                
+                if (!jobs || jobs.length === 0) {
+                    resultsContainer.innerHTML = '<p>No jobs found matching your criteria.</p>';
+                    return;
+                }
+                
+                jobs.forEach(job => {
+                    const jobElement = document.createElement('div');
+                    jobElement.className = 'job-card';
+                    jobElement.innerHTML = `
+                        <div class="job-card-content">
+                            <div class="job-header">
+                                <h3>${job.title}</h3>
+                                <p class="company">${job.company}</p>
+                            </div>
+                            <div class="job-details">
+                                <div class="detail-row">
+                                    <span class="detail-icon">📍</span>
+                                    <p class="location">${job.location}</p>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-icon">💰</span>
+                                    <p class="salary">${job.salary || 'Salary not specified'}</p>
+                                </div>
+                            </div>
+                            <div class="job-description">
+                                <p class="description">${job.description}</p>
+                            </div>
+                            <div class="job-meta">
+                                <span class="job-type">${job.type || 'Full-time'}</span>
+                                <span class="posted-date">Posted: ${new Date(job.posted_date).toLocaleDateString()}</span>
+                            </div>
+                            <a href="${job.url}" target="_blank" class="apply-button">Apply Now</a>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(jobElement);
+                });
+            }
+        });
+    </script>
+        <footer>
+            <p>RecruitMe.Inc&copy; 2025</p>
+        </footer>
+</body>
+</html>

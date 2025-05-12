@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Job Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .search-form {
+            margin-bottom: 20px;
+        }
+        .search-form input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .search-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .search-form button:hover {
+            background-color: #0056b3;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .results-table th, .results-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .results-table th {
+            background-color: #f2f2f2;
+        }
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+        .status-reviewing {
+            background-color: #b8daff;
+            color: #004085;
+        }
+        .status-interview {
+            background-color: #c3e6cb;
+            color: #155724;
+        }
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background-color: #f5c6cb;
+            color: #721c24;
+        }
+        .status-cancelled {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .view-btn {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+        .view-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Search Job Reviews</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="services.html">Our Services</a>
+        <a href="apply.html">Apply</a>
+        <a href="search.html">Search Jobs</a>
+        <a href="search_reviews.html">Search Reviews</a>
+        <a href="career_resources.html">Career Resources</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+
+    <div class="container">
+        <div class="search-form">
+            <form method="GET" action="">
+                <input type="text" name="search" placeholder="Search by job field or position..." value="<?php echo htmlspecialchars($search_term); ?>">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        
+        <?php if ($has_searched): ?>
+            <?php if (count($results) > 0): ?>
+                <h2>Search Results for "<?php echo htmlspecialchars($search_term); ?>"</h2>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Application Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($results as $row): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['position']); ?></td>
+                                <td><?php echo htmlspecialchars($row['application_date']); ?></td>
+                                <td>
+                                    <?php 
+                                    $status = isset($row['status']) ? $row['status'] : 'Pending';
+                                    $statusClass = '';
+                                    switch($status) {
+                                        case 'Pending': $statusClass = 'status-pending'; break;
+                                        case 'Reviewing': $statusClass = 'status-reviewing'; break;
+                                        case 'Interview': $statusClass = 'status-interview'; break;
+                                        case 'Accepted': $statusClass = 'status-accepted'; break;
+                                        case 'Rejected': $statusClass = 'status-rejected'; break;
+                                        case 'Cancelled': $statusClass = 'status-cancelled'; break;
+                                        default: $statusClass = 'status-pending';
+                                    }
+                                    ?>
+                                    <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($status); ?></span>
+                                </td>
+                                <td>
+                                    <a href="application_status.php?id=<?php echo $row['id']; ?>" class="view-btn">View Details</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <div class="no-results">
+                    <p>No results found for "<?php echo htmlspecialchars($search_term); ?>".</p>
+                </div>
+            <?php endif; ?>
+        <?php else: ?>
+            <div class="search-instructions">
+                <p>Enter a job field or position to search for applications.</p>
+            </div>
+        <?php endif; ?>
+    </div>
+    <footer>
+        <p>RecruitMe.Inc&copy; 2025</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Search page loaded');
+        });
+    </script>
+</body>
+</html>

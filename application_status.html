@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #1d84f1;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .status-card {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+        .status-reviewing {
+            background-color: #b8daff;
+            color: #004085;
+        }
+        .status-interview {
+            background-color: #c3e6cb;
+            color: #155724;
+        }
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background-color: #f5c6cb;
+            color: #721c24;
+        }
+        .status-cancelled {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .application-details {
+            margin-top: 20px;
+        }
+        .application-details p {
+            margin: 10px 0;
+        }
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .search-form button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        .search-form button:hover {
+            background-color: #0056b3;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .detail-label {
+            font-weight: bold;
+            width: 200px;
+        }
+        .detail-value {
+            flex: 1;
+        }
+        .cancel-form {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: none;
+        }
+        .cancel-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .cancel-form button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cancel-form button:hover {
+            background-color: #c82333;
+        }
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Application Status</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="services.html">Our Services</a>
+        <a href="apply.html">Apply</a>
+        <a href="search.html">Search Jobs</a>
+        <a href="search_reviews.html">Search Reviews</a>
+        <a href="career_resources.html">Career Resources</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+    
+    <div class="container">
+        <div id="errorMessage" class="error-message"></div>
+        <div id="applicationStatus" class="status-card" style="display: none;">
+            <h2>Application Details</h2>
+            <div class="application-details">
+                <p><strong>Application ID:</strong> <span id="applicationId"></span></p>
+                <p><strong>Name:</strong> <span id="applicantName"></span></p>
+                <p><strong>Email:</strong> <span id="applicantEmail"></span></p>
+                <p><strong>Position:</strong> <span id="position"></span></p>
+                <p><strong>Application Date:</strong> <span id="applicationDate"></span></p>
+                <p><strong>Status:</strong> <span id="status" class="status-badge"></span></p>
+                <div id="cancellationReason" style="display: none;">
+                    <p><strong>Cancellation Reason:</strong></p>
+                    <p id="cancellationText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get application ID from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const applicationId = urlParams.get('id');
+        
+        if (applicationId) {
+            // Fetch application status
+            fetch(`get_application_status.php?id=${applicationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const app = data.data;
+                        document.getElementById('applicationStatus').style.display = 'block';
+                        document.getElementById('applicationId').textContent = app.application_id;
+                        document.getElementById('applicantName').textContent = `${app.first_name} ${app.last_name}`;
+                        document.getElementById('applicantEmail').textContent = app.email;
+                        document.getElementById('position').textContent = app.position;
+                        document.getElementById('applicationDate').textContent = new Date(app.application_date).toLocaleDateString();
+                        
+                        const statusElement = document.getElementById('status');
+                        statusElement.textContent = app.status;
+                        statusElement.className = `status-badge status-${app.status.toLowerCase()}`;
+                        
+                        if (app.status === 'Cancelled' && app.cancellation_reason) {
+                            document.getElementById('cancellationReason').style.display = 'block';
+                            document.getElementById('cancellationText').textContent = app.cancellation_reason;
+                        }
+                    } else {
+                        const errorMessage = document.getElementById('errorMessage');
+                        errorMessage.style.display = 'block';
+                        errorMessage.textContent = data.message || 'Failed to load application status';
+                    }
+                })
+                .catch(error => {
+                    const errorMessage = document.getElementById('errorMessage');
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'An error occurred while fetching the application status';
+                });
+        } else {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'No application ID provided';
+        }
+    });
+    </script>
+    
+    <div class="container">
+        <div class="search-form">
+            <h2>Check Your Application Status</h2>
+            <form method="GET" action="application_status.php">
+                <div>
+                    <label for="application_id">Application ID:</label>
+                    <input type="number" id="application_id" name="id" placeholder="Enter your application ID">
+                </div>
+                <div>
+                    <label for="email">Or Email Address:</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email address">
+                </div>
+                <button type="submit">Check Status</button>
+            </form>
+        </div>
+        
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+        
+        <div id="successMessage" class="success-message"></div>
+        
+        <?php if ($application): ?>
+            <div class="application-details">
+                <h3>Application Details</h3>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Application ID:</div>
+                    <div class="detail-value"><?php echo $application['id']; ?></div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Name:</div>
+                    <div class="detail-value"><?php echo htmlspecialchars($application['first_name'] . ' ' . $application['last_name']); ?></div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Email:</div>
+                    <div class="detail-value"><?php echo htmlspecialchars($application['email']); ?></div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Position:</div>
+                    <div class="detail-value"><?php echo htmlspecialchars($application['position']); ?></div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Application Date:</div>
+                    <div class="detail-value"><?php echo $application['application_date']; ?></div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Status:</div>
+                    <div class="detail-value">
+                        <?php 
+                        $status = isset($application['status']) ? $application['status'] : 'Pending';
+                        $statusClass = 'status-' . strtolower($status);
+                        ?>
+                        <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($status); ?></span>
+                    </div>
+                </div>
+                
+                <?php
+                if (isset($status) && $status === 'Cancelled' && !empty($application['cancellation_reason'])) {
+                    echo '<div class="detail-row">' .
+                         '<div class="detail-label">Cancellation Reason:</div>' .
+                         '<div class="detail-value">' . htmlspecialchars($application['cancellation_reason']) . '</div>' .
+                         '</div>';
+                }
+                ?>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Resume:</div>
+                    <div class="detail-value">
+                        <?php if (!empty($application['resume_path'])): ?>
+                            <a href="<?php echo htmlspecialchars($application['resume_path']); ?>" target="_blank">View Resume</a>
+                        <?php else: ?>
+                            Not available
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-label">Cover Letter:</div>
+                    <div class="detail-value">
+                        <?php if (!empty($application['cover_letter_path'])): ?>
+                            <a href="<?php echo htmlspecialchars($application['cover_letter_path']); ?>" target="_blank">View Cover Letter</a>
+                        <?php else: ?>
+                            Not provided
+                        <?php endif; ?>
+                    </div>
+                </div>
+                
+                <?php
+                if (isset($status) && $status !== 'Cancelled') {
+                    echo '<button id="showCancelForm" class="cancel-button" style="background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-top: 20px;">Cancel Application</button>' .
+                         '<div id="cancelForm" class="cancel-form">' .
+                         '<h3>Cancel Application</h3>' .
+                         '<p>Please provide a reason for cancellation:</p>' .
+                         '<textarea id="cancellationReason" rows="4" placeholder="Enter your reason for cancellation"></textarea>' .
+                         '<button id="submitCancel" type="button">Confirm Cancellation</button>' .
+                         '</div>';
+                }
+                ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 Job Application Portal. All rights reserved.</p>
+    </footer>
+    
+    <?php if ($application): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showCancelFormButton = document.getElementById('showCancelForm');
+            const cancelForm = document.getElementById('cancelForm');
+            const submitCancelButton = document.getElementById('submitCancel');
+            const successMessage = document.getElementById('successMessage');
+            
+            function showSuccessMessage(message) {
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+            }
+            
+            function updateStatusDisplay(status) {
+                const statusBadge = document.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.textContent = status;
+                    statusBadge.className = `status-badge status-${status.toLowerCase()}`;
+                }
+            }
+            
+            function addCancellationReason(reason) {
+                const detailsDiv = document.querySelector('.application-details');
+                if (detailsDiv && showCancelFormButton) {
+                    const newRow = document.createElement('div');
+                    newRow.className = 'detail-row';
+                    newRow.innerHTML = `
+                        <div class="detail-label">Cancellation Reason:</div>
+                        <div class="detail-value">${reason}</div>
+                    `;
+                    detailsDiv.insertBefore(newRow, showCancelFormButton);
+                }
+            }
+            
+            if (showCancelFormButton && cancelForm) {
+                showCancelFormButton.addEventListener('click', function() {
+                    cancelForm.style.display = 'block';
+                    showCancelFormButton.style.display = 'none';
+                });
+            }
+            
+            if (submitCancelButton) {
+                submitCancelButton.addEventListener('click', function() {
+                    const reason = document.getElementById('cancellationReason')?.value;
+                    if (!reason?.trim()) {
+                        alert('Please provide a reason for cancellation.');
+                        return;
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('application_id', '<?php echo isset($application["id"]) ? $application["id"] : ""; ?>');
+                    formData.append('status', 'Cancelled');
+                    formData.append('cancellation_reason', reason);
+                    
+                    fetch('update_application_status.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showSuccessMessage('Your application has been cancelled successfully.');
+                            if (cancelForm) cancelForm.style.display = 'none';
+                            updateStatusDisplay('Cancelled');
+                            addCancellationReason(reason);
+                            if (showCancelFormButton) showCancelFormButton.style.display = 'none';
+                            
+                            setTimeout(() => window.location.reload(), 2000);
+                        } else {
+                            throw new Error(data.message || 'Failed to cancel application');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert(`Error: ${error.message || 'An error occurred. Please try again later.'}`);
+                    });
+                });
+            }
+        });
+    </script>
+    <?php endif; ?>
+</body>
+</html>

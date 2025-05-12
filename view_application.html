@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Applications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .file-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .file-link:hover {
+            text-decoration: underline;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+        .status-reviewing {
+            background-color: #b8daff;
+            color: #004085;
+        }
+        .status-interview {
+            background-color: #c3e6cb;
+            color: #155724;
+        }
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background-color: #f5c6cb;
+            color: #721c24;
+        }
+        .status-cancelled {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .update-status-btn, .view-details-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .update-status-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .view-details-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .modal-form label, .modal-form select, .modal-form textarea, .modal-form button {
+            display: block;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .modal-form select, .modal-form textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .modal-form button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal-form button:hover {
+            background-color: #0056b3;
+        }
+        .cancellation-reason {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>View All Applications</h1>
+    </header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="services.html">Our Services</a>
+        <a href="apply.html">Apply</a>
+        <a href="search.html">Search Jobs</a>
+        <a href="search_reviews.html">Search Reviews</a>
+        <a href="career_resources.html">Career Resources</a>
+        <a href="contact.html">Contact Us</a>
+    </nav>
+    
+    <div class="container">
+        <h2>Job Applications</h2>
+        
+        <?php if ($result && $result->num_rows > 0): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Application Date</th>
+                        <th>Status</th>
+                        <th>Resume</th>
+                        <th>Cover Letter</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo $row['id']; ?></td>
+                            <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['email']); ?></td>
+                            <td><?php echo htmlspecialchars($row['position']); ?></td>
+                            <td><?php echo $row['application_date']; ?></td>
+                            <td>
+                                <?php 
+                                $status = isset($row['status']) ? $row['status'] : 'Pending';
+                                $statusClass = '';
+                                switch($status) {
+                                    case 'Pending': $statusClass = 'status-pending'; break;
+                                    case 'Reviewing': $statusClass = 'status-reviewing'; break;
+                                    case 'Interview': $statusClass = 'status-interview'; break;
+                                    case 'Accepted': $statusClass = 'status-accepted'; break;
+                                    case 'Rejected': $statusClass = 'status-rejected'; break;
+                                    case 'Cancelled': $statusClass = 'status-cancelled'; break;
+                                    default: $statusClass = 'status-pending';
+                                }
+                                ?>
+                                <span class="status-badge <?php echo $statusClass; ?>"><?php echo htmlspecialchars($status); ?></span>
+                            </td>
+                            <td>
+                                <?php if (!empty($row['resume_path'])): ?>
+                                    <a href="<?php echo htmlspecialchars($row['resume_path']); ?>" class="file-link" target="_blank">View Resume</a>
+                                <?php else: ?>
+                                    Not available
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($row['cover_letter_path'])): ?>
+                                    <a href="<?php echo htmlspecialchars($row['cover_letter_path']); ?>" class="file-link" target="_blank">View Cover Letter</a>
+                                <?php else: ?>
+                                    Not provided
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <button class="update-status-btn" data-id="<?php echo $row['id']; ?>">Update Status</button>
+                                <a href="application_status.php?id=<?php echo $row['id']; ?>" class="view-details-btn">View Details</a>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No applications found.</p>
+        <?php endif; ?>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        });
+    </script>
+    <!-- Status Update Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Update Application Status</h2>
+            <form id="statusUpdateForm" class="modal-form">
+                <input type="hidden" id="applicationId" name="application_id">
+                
+                <label for="statusSelect">New Status:</label>
+                <select id="statusSelect" name="status">
+                    <option value="Pending">Pending</option>
+                    <option value="Reviewing">Reviewing</option>
+                    <option value="Interview">Interview</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                
+                <div id="cancellationReasonContainer" class="cancellation-reason">
+                    <label for="cancellationReason">Cancellation Reason:</label>
+                    <textarea id="cancellationReason" name="cancellation_reason" rows="4"></textarea>
+                </div>
+                
+                <button type="submit">Update Status</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the modal
+            const modal = document.getElementById('statusModal');
+            const closeBtn = document.querySelector('.close');
+            const statusForm = document.getElementById('statusUpdateForm');
+            const statusSelect = document.getElementById('statusSelect');
+            const cancellationReasonContainer = document.getElementById('cancellationReasonContainer');
+            const applicationIdInput = document.getElementById('applicationId');
+            
+            // Get all update status buttons
+            const updateButtons = document.querySelectorAll('.update-status-btn');
+            
+            // Add click event to all update buttons
+            updateButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.getAttribute('data-id');
+                    applicationIdInput.value = applicationId;
+                    modal.style.display = 'block';
+                });
+            });
+            
+            // Close the modal when clicking the close button
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // Close the modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Show/hide cancellation reason based on status selection
+            statusSelect.addEventListener('change', function() {
+                if (this.value === 'Cancelled') {
+                    cancellationReasonContainer.style.display = 'block';
+                } else {
+                    cancellationReasonContainer.style.display = 'none';
+                }
+            });
+            
+            // Handle form submission
+            statusForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Validate cancellation reason if status is Cancelled
+                if (statusSelect.value === 'Cancelled' && document.getElementById('cancellationReason').value.trim() === '') {
+                    alert('Please provide a reason for cancellation.');
+                    return;
+                }
+                
+                // Create form data
+                const formData = new FormData(this);
+                
+                // Send AJAX request
+                fetch('update_application_status.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Application status updated successfully!');
+                        modal.style.display = 'none';
+                        
+                        // Reload the page to show updated status
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again later.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
